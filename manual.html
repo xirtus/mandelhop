@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MANDELHOP — Field Manual</title>
+<link rel="stylesheet" href="css/manual.css">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🐸</text></svg>">
+</head>
+<body>
+<canvas id="spores"></canvas>
+<div id="progress"></div>
+
+<nav id="side">
+  <div class="nav-logo" onclick="scrollTo({top:0,behavior:'smooth'})">M<span>✦</span>H</div>
+  <a href="#what" data-spy>the game</a>
+  <a href="#play" data-spy>how to play</a>
+  <a href="#demo" data-spy>try it</a>
+  <a href="#descent" data-spy>the descent</a>
+  <a href="#bestiary" data-spy>bestiary</a>
+  <a href="#noneuclid" data-spy>bent space</a>
+  <a href="#tech" data-spy>the machine</a>
+  <a href="#warped" data-spy class="warped-link">PROJECT&nbsp;WARPED</a>
+  <a href="#credits" data-spy>credits</a>
+  <a href="index.html" class="play-link">▶ PLAY</a>
+</nav>
+
+<main>
+<!-- ============================== HERO ============================== -->
+<header id="hero">
+  <div class="hero-inner">
+    <div class="logo">MANDEL<span>HOP</span></div>
+    <div class="tag">field manual · one endless descent into the fractal garden</div>
+    <div class="hero-stats">
+      <div class="stat"><b data-count="9">0</b><i>biomes</i></div>
+      <div class="stat"><b data-count="7">0</b><i>hazards</i></div>
+      <div class="stat"><b data-count="5">0</b><i>space-bends</i></div>
+      <div class="stat"><b data-count="120">0</b><i>fps</i></div>
+    </div>
+    <a class="cta" href="index.html">BEGIN THE DESCENT</a>
+  </div>
+</header>
+
+<!-- ============================== WHAT ============================== -->
+<section id="what">
+  <h2><em>01</em>the game</h2>
+  <div class="card glow">
+    <p class="lede">MANDELHOP is Frogger, remembered in a dream. No stages, no level
+    select, no mercy screen — <b>one continuous procedurally-grown track</b> that
+    unwinds forever through nine mutating biomes while the geometry of the world
+    itself slowly stops obeying Euclid.</p>
+    <div class="cols">
+      <div>
+        <h3>the loop</h3>
+        <p>Hop tile-to-tile. Read lanes. Ride logs and lily pads across spectral
+        water. Fill mandala checkpoints. Gather pollen to feed your bloom energy.
+        Every row forward is +10 and one row deeper into the set.</p>
+      </div>
+      <div>
+        <h3>the rules</h3>
+        <ul>
+          <li>Touch traffic → squashed</li>
+          <li>Water without a platform → drowned</li>
+          <li>Bloom energy reaches zero → withered</li>
+          <li>3 lives · respawn at your last mandala</li>
+          <li>Best score &amp; deepest depth persist</li>
+        </ul>
+      </div>
+    </div>
+    <p class="fine">Every run is freshly seeded but deterministic within itself:
+    lane speeds are constant, collision uses grid math, and the spectacular water
+    around the platforms is strictly render-only. When you die, it was you.</p>
+  </div>
+</section>
+
+<!-- ============================== HOW TO PLAY ============================== -->
+<section id="play">
+  <h2><em>02</em>how to play</h2>
+  <div class="grid2">
+    <div class="card">
+      <h3>controls</h3>
+      <table class="keys">
+        <tr><td><kbd>←</kbd><kbd>↑</kbd><kbd>↓</kbd><kbd>→</kbd> / <kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd></td><td>hop · hold to keep hopping</td></tr>
+        <tr><td><kbd>Space</kbd> / tap / gamepad</td><td>begin · hop forward</td></tr>
+        <tr><td><kbd>P</kbd> / <kbd>Esc</kbd></td><td>pause</td></tr>
+        <tr><td><kbd>C</kbd></td><td>camera — classic arcade ↔ immersive</td></tr>
+        <tr><td><kbd>M</kbd></td><td>generative sound on/off</td></tr>
+        <tr><td><kbd>R</kbd></td><td>instant restart</td></tr>
+        <tr><td><kbd>F</kbd></td><td>fps · draw calls · triangles</td></tr>
+      </table>
+      <p class="fine">touch: swipe to hop, tap to leap forward</p>
+    </div>
+    <div class="card">
+      <h3>scoring &amp; survival</h3>
+      <table class="keys">
+        <tr><td class="pts">+10</td><td>each new row forward (combos ×8 = +40)</td></tr>
+        <tr><td class="pts">+25</td><td>pollen orb ✦ — also <b>+3s bloom energy</b></td></tr>
+        <tr><td class="pts">+250</td><td>checkpoint mandala — refills energy, sets respawn</td></tr>
+      </table>
+      <h3 style="margin-top:18px">reading the world</h3>
+      <ul>
+        <li><b class="c-teal">chevrons</b> flow with each lane's direction &amp; speed</li>
+        <li><b class="c-green">green pillars</b> — portal rows (torus wrap)</li>
+        <li><b class="c-violet">violet pillars / sheen</b> — mirror zones</li>
+        <li><b class="c-red">red-veined lily pads</b> — they sink. keep moving.</li>
+        <li><b class="c-gold">glowing mandalas</b> — checkpoints every 40 rows</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ============================== DEMO ============================== -->
+<section id="demo">
+  <h2><em>03</em>try the verb</h2>
+  <div class="card">
+    <p>The entire game is one verb — <b>hop</b> — pressed against timing. Feel it here:
+    guide the frog up the micro-lanes. Arrows / WASD / tap the pad buttons.</p>
+    <div id="minigame">
+      <div id="mg-board"></div>
+      <div id="mg-msg">reach the top ✦ row</div>
+      <div id="mg-pad">
+        <button data-d="0,1">↑</button>
+        <div><button data-d="-1,0">←</button><button data-d="0,-1">↓</button><button data-d="1,0">→</button></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================== DESCENT ============================== -->
+<section id="descent">
+  <h2><em>04</em>the descent — biome atlas</h2>
+  <p class="sec-note">Biomes cross-fade every 30 rows. Sky, water, flora, traffic
+  and the music's root all blend — the Julia-set sky's seed morphs as you cross,
+  so the sky itself descends with you.</p>
+  <div id="biomes"></div>
+</section>
+
+<!-- ============================== BESTIARY ============================== -->
+<section id="bestiary">
+  <h2><em>05</em>bestiary &amp; hazards</h2>
+  <p class="sec-note">Complications unlock by depth. Each is announced by a banner
+  the first time it can appear — the garden always warns you once.</p>
+  <div id="hazards"></div>
+</section>
+
+<!-- ============================== BENT SPACE ============================== -->
+<section id="noneuclid">
+  <h2><em>06</em>bent space field guide</h2>
+  <div class="grid2" id="bends"></div>
+  <div class="card glow" style="margin-top:18px">
+    <h3>the mandelbrot pulse</h3>
+    <p>Past depth 200, some lanes breathe. Their speed multiplier is driven by a
+    live <b>orbit-trap iteration</b> of z → z² + c near the set boundary — the same
+    mathematics that paints the sky now conducts the traffic. Watch the chevrons:
+    they always show the true speed. The garden never lies about timing.</p>
+  </div>
+</section>
+
+<!-- ============================== TECH ============================== -->
+<section id="tech">
+  <h2><em>07</em>the machine</h2>
+  <div class="grid3" id="techgrid"></div>
+</section>
+
+<!-- ============================== PROJECT WARPED ============================== -->
+<section id="warped">
+  <h2 class="warped"><em>08</em>PROJECT WARPED <small>— the Crash-Bandicoot-Warped master plan</small></h2>
+  <div class="card glow">
+    <p class="lede">The Descent is the spine. Next: give it a <b>Warp Room</b>.
+    Crash Bandicoot Warped proved the formula — a hub of portals, each leading to
+    a level with a totally different <i>verb</i>, unified by one character and one
+    collectible economy. MANDELHOP's frog already hops through anything. Time to
+    aim that at full level archetypes.</p>
+  </div>
+
+  <h3 class="sub">the lotus hub</h3>
+  <div class="card">
+    <p>A floating mandala garden — the warp room. Portals bloom open as you earn
+    <b>Crystal Petals</b>. Each portal is a hand-tuned level seed with its own
+    ruleset, built from the same deterministic row-generator that powers the Descent.</p>
+    <div class="hub-diagram">
+      <span>🌸 THE LOTUS HUB</span> →
+      <span>garden gate</span><span>highway gate</span><span>rapids gate</span>
+      <span>temple gate</span><span>cosmos gate</span><span class="boss">👁 boss bloom</span>
+    </div>
+  </div>
+
+  <h3 class="sub">level archetypes — one frog, many verbs</h3>
+  <div id="archetypes"></div>
+
+  <h3 class="sub">the collectible economy</h3>
+  <div class="grid3">
+    <div class="card mini"><h4>❀ crystal petals</h4><p>one per level, earned by finishing.
+    Opens new hub gates. The spine of progress.</p></div>
+    <div class="card mini"><h4>◆ pollen gems</h4><p>hidden / risky routes, 100%-orb
+    bonuses. Unlocks cosmetic frog skins &amp; hub flora.</p></div>
+    <div class="card mini"><h4>⏱ relics</h4><p>time-trial re-runs of cleared levels —
+    sapphire / gold / platinum ghosts. Speedrun heart.</p></div>
+  </div>
+
+  <h3 class="sub">new moves (unlocked by bosses)</h3>
+  <div class="grid3">
+    <div class="card mini"><h4>double bloom-hop</h4><p>a second hop mid-air — opens
+    vertical shortcuts, gated behind Guardian I.</p></div>
+    <div class="card mini"><h4>tongue lash</h4><p>grab orbs / stun a chomper from one
+    tile away. Skill expression.</p></div>
+    <div class="card mini"><h4>dive</h4><p>brief submersion through rapids hazards —
+    the water shader finally becomes gameplay.</p></div>
+  </div>
+
+  <h3 class="sub">guardians (boss blooms)</h3>
+  <div class="card">
+    <p>Arena fights built from lane mechanics: <b>The Mother Chomper</b> (jaw cycles
+    across a shrinking garden), <b>The Dragonfly Matriarch</b> (multi-dash patterns
+    over collapsing lilies), <b>The Mandelcore</b> (a boss that IS the pulsing lane
+    function — survive the orbit). Beat them → new move + new hub ring.</p>
+  </div>
+
+  <h3 class="sub">delivery phases</h3>
+  <div class="phases">
+    <div class="phase done"><b>φ0 — done</b>the Infinite Descent: endless track, 9 blended
+    biomes, 7 hazards, bent space, generative audio, 120 fps</div>
+    <div class="phase"><b>φ1</b>level-pack format: named seeds → curated Descent segments
+    with fixed biomes &amp; mutators · hub shell · crystal petals</div>
+    <div class="phase"><b>φ2</b>first archetypes: Rapids Ride + Matriarch Chase ·
+    pollen gems · ghost replay (input recording is already deterministic)</div>
+    <div class="phase"><b>φ3</b>Guardian I + double-hop · relic time trials ·
+    frog skins</div>
+    <div class="phase"><b>φ4</b>full warp room: 25+ levels, 5 guardians, 100% ending —
+    the garden fully bloomed</div>
+  </div>
+</section>
+
+<!-- ============================== CREDITS ============================== -->
+<section id="credits">
+  <h2><em>09</em>credits</h2>
+  <div class="card">
+    <p>Built with <b>three.js</b> (MIT, vendored locally). Techniques adapted with
+    gratitude from <b>poseidon</b> and <b>gaia</b> by Owen Yuwono (MIT — see
+    LICENSES.md): spectral water construction; ribbon-blade grass, sway factors
+    and wind. All code, creatures, music and mathematics original. No samples,
+    no textures, no melodies — everything is synthesized while you play.</p>
+    <p class="fine">MANDELHOP · made of frogs, fractals and feedback ✦</p>
+  </div>
+</section>
+
+<footer>hop eternal · <a href="index.html">play</a> · <a href="https://github.com" target="_blank" rel="noopener">source</a></footer>
+</main>
+
+<script src="js/manual.js"></script>
+
+<section class="timewarp">
+<h2>⧗ TIMEWARP EXPANSION — FIELD GUIDE II</h2>
+<p><strong>The Pond Outside Time</strong> is your hub — hop onto a glowing gate to enter a temporal world. Complete stages to face the world's <em>Guardian</em>. Defeat guardians to permanently <strong>evolve new powers</strong>.</p>
+<h3>THE MOVESET (unlocked by guardians)</h3>
+<ul>
+<li><b>J</b> — CYCLONE SPIN: attack, break Chronopods, reflect spores (hold with SUPER SPIN to hover)</li>
+<li><b>mid-air direction</b> — DOUBLE JUMP: kick off a ripple of time</li>
+<li><b>K</b> — SUPER BELLY SLAM: shockwave, armored pods, cracked ground</li>
+<li><b>I</b> — TEMPORAL SEED SHOT: spit chronoseeds at distant targets & switches</li>
+<li><b>L / Shift</b> — SLIDE: skim low under vine bars; slide-jump flies far</li>
+<li><b>U</b> — TONGUE GRAPPLE: swing from glowing bloom-rings</li>
+<li><b>H</b> — TIME DASH: blink through hazards</li>
+</ul>
+<h3>TIME POWERS (chrono meter)</h3>
+<ul>
+<li><b>T (hold)</b> — TIME SLOW: the world crawls; you don't</li>
+<li><b>F</b> — TIME FREEZE: waves, logs & predators crystallize into stepping stones</li>
+<li><b>G</b> — PHASE SHIFT: swap NOW ↔ THEN on marked rows — frozen rivers, lost bridges</li>
+</ul>
+<h3>THE LOOPS</h3>
+<ul>
+<li>✦ <b>Time Pollen</b> — hundreds per stage, magnetized to you</li>
+<li>⬡ <b>Chronopods</b> — break every one for the PERFECT BLOOM (some need specific powers)</li>
+<li>◆ <b>Fractal Shards</b> — five hidden per stage</li>
+<li>❀ <b>Blooms</b> — perfect pods · zero deaths · all secrets · 95% pollen</li>
+<li>⏱ <b>TIME RUN</b> — unlocked after completing a stage; race your ghost for Bronze/Silver/Golden/Prismatic Epochs</li>
+<li><b>FLOW STATE</b> — chain landings on the beat and the level plays itself with you</li>
+</ul>
+<p class="dim">Bonus dimensions hide inside stages. Death routes open only to the flawless. Earlier stages keep secrets for later powers.</p>
+</section>
+</body>
+</html>

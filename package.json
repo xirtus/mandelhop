@@ -1,0 +1,16 @@
+{
+  "name": "mandelhop",
+  "version": "1.0.0",
+  "description": "An infinite fractal garden frogger — psychedelic procedural Three.js arcade game",
+  "type": "module",
+  "scripts": {
+    "dev": "python3 -m http.server 8080",
+    "serve": "npx serve ."
+  },
+  "dependencies": {
+    "three": "^0.180.0"
+  },
+  "devDependencies": {
+    "playwright": "^1.62.1"
+  }
+}

@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>MANDELHOP TIMEWARP — a psychedelic platforming odyssey</title>
+<link rel="stylesheet" href="css/style.css">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🐸</text></svg>">
+<script type="importmap">
+{
+  "imports": {
+    "three": "./node_modules/three/build/three.module.js",
+    "three/addons/": "./node_modules/three/examples/jsm/"
+  }
+}
+</script>
+</head>
+<body>
+<canvas id="c"></canvas>
+
+<div id="hud">
+  <div class="hud-left">
+    <div id="score">000000</div>
+    <div id="best" class="dim">000000</div>
+    <div id="collect-hud">
+      <span id="pollen-count" class="chip">✦ 0</span>
+      <span id="pods-count" class="chip">⬡ 0/0</span>
+      <span id="shards-count" class="chip">◆ 0/5</span>
+    </div>
+  </div>
+  <div class="hud-mid">
+    <div id="biome">THE POND OUTSIDE TIME</div>
+    <div id="dist">DEPTH 0000</div>
+    <div id="timebar"><div id="timefill"></div></div>
+    <div id="flow-hud"><div id="flowfill"></div><span class="flow-label">FLOW</span></div>
+    <div id="stopwatch">00:00.000</div>
+    <div id="trial-badge">⏱ TIME RUN</div>
+  </div>
+  <div class="hud-right">
+    <div id="lives"></div>
+    <div id="chrono-hud"><div id="chronofill"></div><span class="chrono-label">⧗ CHRONO</span></div>
+    <div id="power-bar"></div>
+  </div>
+</div>
+
+<div id="banner"></div>
+<div id="hint"></div>
+<div id="popups"></div>
+<div id="flash"></div>
+<div id="overlay" class="show"></div>
+<div id="fps"></div>
+<a id="manlink" href="manual.html" title="field manual">✦ manual</a>
+<div id="vignette"></div>
+
+<script type="module" src="js/main.js"></script>
+</body>
+</html>

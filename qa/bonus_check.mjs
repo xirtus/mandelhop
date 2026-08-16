@@ -1,0 +1,32 @@
+import { chromium } from 'playwright';
+const browser = await chromium.launch({ args: ['--use-angle=metal', '--enable-gpu'] });
+const page = await browser.newPage({ viewport: { width: 1280, height: 720 } });
+page.on('pageerror', e => console.log('PAGEERROR:', e.message));
+await page.goto('http://localhost:8977/?qa=1');
+await page.waitForFunction(() => window.__game && window.__qa);
+await page.waitForTimeout(900);
+await page.evaluate(() => window.__qa.stage('w1s3'));
+await page.waitForTimeout(600);
+const loc = await page.evaluate(() => {
+  const g = window.__game;
+  for (const [r, row] of g.rows) if (row.bonusPortal) return { r, x: row.bonusPortal.x };
+  return null;
+});
+console.log('bonus at:', JSON.stringify(loc));
+await page.evaluate(([r, x]) => window.__qa.teleport(r, x), [loc.r, loc.x]);
+await page.waitForTimeout(400);
+await page.keyboard.press('ArrowUp');
+await page.waitForTimeout(500);
+const st1 = await page.evaluate(() => ({ mode: window.__game.mode, row: window.__game.row, fx: window.__game.fx }));
+console.log('after entry hop:', JSON.stringify(st1));
+await page.screenshot({ path: 'qa/shots/f_bonus2.png' });
+// look around pocket then complete
+await page.keyboard.press('ArrowUp'); await page.waitForTimeout(300);
+await page.screenshot({ path: 'qa/shots/f_bonus3.png' });
+await page.evaluate(() => window.__qa.teleport(11, 0));
+await page.waitForTimeout(300);
+await page.keyboard.press('ArrowUp');
+await page.waitForTimeout(1200);
+const st2 = await page.evaluate(() => ({ mode: window.__game.mode, row: window.__game.row, score: window.__game.score, state: window.__game.state }));
+console.log('after exit:', JSON.stringify(st2));
+await browser.close();
