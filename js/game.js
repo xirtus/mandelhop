@@ -182,6 +182,7 @@ export class Game {
     this.hub.build(this.themeStaticAt(0));
     this.hub.enter();
     this.ui.hideOverlay();
+    this.ui.clearBanner();
     this.ui.setBiome('THE POND OUTSIDE TIME');
     this.ui.hint('');
     this.ui.showHud('hub');
@@ -212,6 +213,7 @@ export class Game {
     this.score = 0; this.lives = LIVES;
     this.ui.setScore(0); this.ui.setLives(LIVES);
     this.ui.hideOverlay();
+    this.ui.clearBanner();
     this.ui.showHud('stage', { trial, stage: s, progress: this.progress });
     this.ui.setBiome(s.name.toUpperCase());
     this.ui.hint('');
@@ -250,6 +252,7 @@ export class Game {
     this.ui.setScore(0); this.ui.setLives(LIVES);
     this.ui.setDist(0);
     this.ui.hideOverlay();
+    this.ui.clearBanner();
     this.ui.showHud('endless');
     this.state = 'play';
     this.paused = false;

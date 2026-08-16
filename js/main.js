@@ -6,10 +6,7 @@
 // =============================================================================
 import * as THREE from 'three';
 import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
-import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
-import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
-import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
-import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
+
 import { Input } from './input.js';
 import { AudioEngine } from './audio.js';
 import { WaterSystem } from './water.js';
@@ -31,6 +28,7 @@ import { Hub } from './hub.js';
 import { POWERS } from './stages.js';
 
 const QA = new URLSearchParams(location.search).has('qa');
+
 
 const canvas = document.getElementById('c');
 let renderer;
@@ -56,14 +54,11 @@ const pmrem = new THREE.PMREMGenerator(renderer);
 scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
 if ('environmentIntensity' in scene) scene.environmentIntensity = 0.22;
 
-// AAA bloom — makes every emissive sing (measured headroom: 120fps before)
-const composer = new EffectComposer(renderer);
-composer.addPass(new RenderPass(scene, camera));
-const bloom = new UnrealBloomPass(new THREE.Vector2(innerWidth, innerHeight), 0.32, 0.55, 0.78);
-composer.addPass(bloom);
-composer.addPass(new OutputPass());
-addEventListener('resize', () => composer.setSize(innerWidth, innerHeight));
 
+// NOTE: postprocessing bloom was A/B-tested and REMOVED — the OutputPass applies
+// ACES to the custom water/sky shaders (which skip tonemapping in direct render),
+// desaturating the luminous turquoise to milk. Direct render keeps the palette
+// punchy; emissives already carry the glow. One less pass = free performance.
 const ui = new UI();
 const audio = new AudioEngine();
 const water = new WaterSystem(scene);
@@ -150,7 +145,7 @@ function frame(now) {
     rig.update(t, dt, new THREE.Vector3(Math.sin(t * 0.1) * 2, 0, -5));
   }
 
-  composer.render();
+  renderer.render(scene, camera);
 
   fpsEma += (1 / Math.max(dt, 1e-4) - fpsEma) * 0.05;
   if (showFps && now - fpsTick > 250) {

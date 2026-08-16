@@ -194,7 +194,7 @@ export class World {
     } else {
       const m = this._strip();
       if (row.type === 'river') {
-        m.material = this._mat(new THREE.Color(st.waterDeep).multiplyScalar(0.45));
+        m.material = this._mat(new THREE.Color(st.waterDeep).multiplyScalar(0.85).lerp(new THREE.Color(st.waterShallow), 0.25));
         m.position.set(0, -0.62, z);
       } else {
         const c = new THREE.Color(st.grass);

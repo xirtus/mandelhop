@@ -332,6 +332,10 @@ export class UI {
   }
 
   hideOverlay() { this.overlay.className = ''; }
+  clearBanner() {
+    clearTimeout(this._bannerT);
+    this.bannerEl.classList.remove('on');
+  }
 
   banner(title, sub = '', dur = 2200) {
     this.bannerEl.innerHTML = `<div class="b-title">${title}</div><div class="b-sub">${sub}</div>`;

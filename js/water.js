@@ -149,17 +149,25 @@ export class WaterSystem {
           float fres = pow(1.0 - max(dot(V, N), 0.0), 3.0);
           fres = mix(0.04, 1.0, fres);
 
-          // Body color: deep, dark heart → shallow scatter only on crests
+          // Body color: LUMINOUS turquoise heart — bioluminescent, never black.
+          // Fully adaptive: dark biomes get the full glow; already-bright waters
+          // (the hub pond) compress toward their old serene balance.
+          float lum = dot(uShallow, vec3(0.299, 0.587, 0.114));
+          float bright = smoothstep(0.5, 0.72, lum);
+          float lift = mix(1.65, 0.8, bright);
+          float floorGlow = mix(0.78, 0.26, bright);
           float crest = smoothstep(-0.02, 0.14, vCrest);
-          vec3 body = mix(uDeep * 0.55, uShallow, crest * 0.55 + 0.06);
+          vec3 body = mix(uDeep * 1.15, uShallow * lift, crest * 0.4 + floorGlow);
 
-          // caustic web — two interfering noise fields create thin filaments
+          // caustic web — soft filaments over the glowing body
           float c1 = noise(vPos.xz * 2.8 + uTime * 0.4);
           float c2 = noise(vPos.xz * 3.4 - uTime * 0.33 + 7.7);
-          float streak = pow(1.0 - abs(c1 - c2) * 2.0, 8.0) * 0.3;
+          float streak = pow(1.0 - abs(c1 - c2) * 2.0, 6.0) * 0.38 * (1.0 - bright * 0.5);
 
-          vec3 col = mix(body, uSky * 1.25, fres * 0.5);
+          vec3 col = mix(body, uSky * 1.25, fres * 0.28);
           col += uShallow * streak;
+          // living glow — the pond breathes with the music
+          col += uShallow * 0.16 * (1.0 - bright * 0.65) * (0.6 + 0.4 * uBeat);
 
           // Sun glitter: tight specular + sparkle hash
           vec3 H = normalize(normalize(uSunDir) + V);
