@@ -18,7 +18,7 @@ import {
   buildDragonfly, animateDragonfly, buildSnake, animateSnake,
   buildChomper, animateChomper, buildOrb, buildCheckpoint, buildWormhole,
   buildPortal, buildBonusPortal, buildBeetleEnemy, buildSpitter, buildSpore,
-  buildGrapplePoint, buildCollapsePad, buildMushroom, buildDeathGate,
+  buildGrapplePoint, buildCollapsePad, buildMushroom, buildDeathGate, buildGrowthSeed,
   buildChaseSerpent, animateChaseSerpent,
 } from './entities.js';
 import { BlobShadows } from './effects.js';
@@ -497,6 +497,14 @@ export class Game {
         this.scene.add(mesh);
         row.spitters.push({ x, mesh, cd: rng.range(1, 2.4), alive: true });
       }
+      // growth seeds (time-accelerate → bounce mushroom)
+      if (this.mode === 'stage' && (this.stage?.world || 1) >= 2 && !row.snake && !row.check && rng.chance(0.14)) {
+        const mesh = buildGrowthSeed(st);
+        const x = rng.int(-5, 5);
+        mesh.position.set(x, 0, rowToZ(r));
+        this.scene.add(mesh);
+        row.seedSpot = { x, mesh, grown: 0 };   // grown: 0 seed, >0 mushroom timer
+      }
       // collapse pads
       if ((flags.collapse || 0) && rng.chance(flags.collapse)) {
         row.collapse = [];
@@ -739,6 +747,8 @@ export class Game {
       case 'slowUp': this.timemagic.setSlow(false); break;
       case 'freeze': if (this.state === 'play' && !this.paused) this.timemagic.tryFreeze(this); break;
       case 'phase': if (this.state === 'play' && !this.paused) this.timemagic.tryPhase(this); break;
+      case 'reverse': if (this.state === 'play' && !this.paused) this._tryReverse(); break;
+      case 'accelerate': if (this.state === 'play' && !this.paused) this._tryAccelerate(); break;
     }
   }
 
@@ -907,7 +917,14 @@ export class Game {
           return;
         }
       }
-      // mushroom? (future) — collapse pads trigger
+      // bounce mushroom (grown via time-accelerate)
+      if (row.seedSpot?.mushroom && Math.abs(this.fx - row.seedSpot.x) < 0.6) {
+        this.audio.bounce();
+        this.effects.ring(this.fx, z, 0x7dffb0, 1.4);
+        this._hop(0, 2, { arc: HOP_H * 2.2 });
+        return;
+      }
+      // collapse pads trigger
       if (row.collapse) {
         for (const c of row.collapse) {
           if (c.state === 'idle' && Math.abs(this.fx - c.x) < 0.55) {
@@ -1084,6 +1101,64 @@ export class Game {
         }
       }
     }
+  }
+
+  // ---- object-level time powers ----------------------------------------------
+  _tryReverse() {
+    if (this.timemagic.meter < 0.3) return;
+    // rebuild recently-fallen ruins & lift sinking pads in range
+    let did = false;
+    const fz = rowToZ(this.row);
+    for (const row of this.rows.values()) {
+      if (Math.abs(rowToZ(row.r) - fz) > 3.5) continue;
+      if (row.collapse) for (const c of row.collapse) {
+        if ((c.state === 'falling' || c.state === 'fallen') && Math.abs(c.x - this.fx) < 3.5) {
+          c.state = 'rebuilding'; c.t = 0;
+          c.mesh.visible = true;
+          did = true;
+        }
+      }
+      if (row.sinker && row.sinkT > 0.2) { row.sinkT = 0; did = true; }
+    }
+    if (did) {
+      this.timemagic.meter -= 0.3;
+      this.audio.phaseShift();
+      this.effects.frostBurst(this.fx, fz);
+    } else {
+      this.ui.popup('NOTHING TO REVERSE', this.frog.group.position, '#9fd8ff');
+    }
+  }
+
+  _tryAccelerate() {
+    if (this.timemagic.meter < 0.25) return;
+    const fz = rowToZ(this.row);
+    for (const row of this.rows.values()) {
+      const ss = row.seedSpot;
+      if (!ss || ss.grown > 0 || ss.mushroom) continue;
+      if (Math.abs(rowToZ(row.r) - fz) < 3 && Math.abs(ss.x - this.fx) < 3) {
+        this.timemagic.meter -= 0.25;
+        ss.grown = 8;
+        ss.mesh.visible = false;
+        const m = buildMushroom(this.themeStaticAt(row.r), null);
+        m.position.set(ss.x, 0, rowToZ(row.r));
+        m.scale.setScalar(0.01);
+        this.scene.add(m);
+        ss.mushroom = m;
+        // grow-in
+        const target = 1;
+        const grow = () => {
+          if (!ss.mushroom) return;
+          ss.mushroom.scale.multiplyScalar(1.35);
+          if (ss.mushroom.scale.x < target) requestAnimationFrame(grow);
+          else ss.mushroom.scale.setScalar(target);
+        };
+        grow();
+        this.audio.bounce();
+        this.effects.flowBloom(ss.x, rowToZ(row.r));
+        return;
+      }
+    }
+    this.ui.popup('NO SEED IN REACH', this.frog.group.position, '#7dffb0');
   }
 
   // ---- bonus pocket ---------------------------------------------------------
@@ -1669,6 +1744,26 @@ export class Game {
           if (c.t > 2.5) {
             c.state = 'idle'; c.mesh.visible = true;
             c.mesh.position.set(c.x, 0, z); c.mesh.rotation.set(0, 0, 0);
+          }
+        } else if (c.state === 'rebuilding') {
+          c.t += wdt;
+          const k = Math.min(1, c.t / 0.5);
+          c.mesh.position.y = -(1 - k) * (1 - k) * 1.5;
+          c.mesh.rotation.x = (1 - k) * 1.5;
+          if (k >= 1) { c.state = 'idle'; c.mesh.position.set(c.x, 0, z); c.mesh.rotation.set(0, 0, 0); }
+        }
+      }
+      if (row.seedSpot) {
+        const ss = row.seedSpot;
+        if (ss.grown > 0) {
+          ss.grown -= wdt;
+          if (ss.mushroom) {
+            ss.mushroom.userData.cap.scale.setScalar(1 + Math.sin(wt * 5) * 0.08);
+            if (ss.grown <= 0) {   // wilt
+              this.scene.remove(ss.mushroom);
+              ss.mushroom = null;
+              ss.mesh.visible = true;
+            }
           }
         }
       }

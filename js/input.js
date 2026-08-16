@@ -30,6 +30,7 @@ export class Input {
       KeyU: 'grapple',
       KeyH: 'dash',
       KeyF: 'freeze', KeyG: 'phase',
+      KeyB: 'reverse', KeyN: 'accelerate',
     };
     const keyDownOnly = new Set(['spin']);   // edge + hold tracking
     const holdAct = { KeyT: 'slow', KeyJ: 'spinHold' };

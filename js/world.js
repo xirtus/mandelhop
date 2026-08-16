@@ -72,10 +72,15 @@ export class World {
       color: 0xff7ecb, roughness: 0.15, emissive: 0xaa3377, emissiveIntensity: 1.2,
       transparent: true, opacity: 0.92,
     });
+    this.trimMat = new THREE.MeshBasicMaterial({ color: 0x66f2ff, transparent: true, opacity: 0.55 });
     for (const s of [-1, 1]) {
       const wall = new THREE.Mesh(new THREE.BoxGeometry(3.4, 1.6, 110), wallMat);
       wall.position.set(s * 8.2, -0.5, -20);
       scene.add(wall); this.walls.push(wall);
+      // glowing terrace trim — turns barriers into garden architecture
+      const trim = new THREE.Mesh(new THREE.BoxGeometry(0.1, 0.06, 110), this.trimMat);
+      trim.position.set(s * 6.55, 0.33, -20);
+      scene.add(trim); this.walls.push(trim);
       for (let i = 0; i < 6; i++) {
         const cry = new THREE.Mesh(new THREE.OctahedronGeometry(0.2 + (i % 3) * 0.12, 0), this.crystalMat);
         cry.position.set(s * (7.6 + (i % 2) * 0.9), 0.3 + (i % 3) * 0.3, -i * 9 - 2);
@@ -143,6 +148,7 @@ export class World {
     this.base.material.color.copy(th.grass).multiplyScalar(0.35);
     this.wallMat.color.copy(th.vegHue !== undefined ? hsl(th.vegHue, 0.4, 0.14) : th.grass);
     this.crystalMat.color.copy(hsl(th.flowerHue, 0.8, 0.5));
+    this.trimMat.color.copy(th.accent);
     this.crystalMat.emissive.copy(hsl(th.flowerHue, 0.9, 0.32));
   }
 
@@ -250,6 +256,8 @@ export class World {
     for (const c of this.crystals) c.visible = on;
     this.base.visible = on;
   }
+
+  setTrimColor(c) { this.trimMat.color.set(c); }
 
   update(t, beat, frogZ) {
     this.sporeUniforms.uTime.value = t;

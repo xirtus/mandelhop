@@ -77,7 +77,7 @@ MANDELHOP is now a full **psychedelic 3D platforming campaign** in the spirit of
 - **THE POND OUTSIDE TIME** — a hub that awakens (plants, lanterns, crystals, the crown) as you complete worlds
 - **9 temporal worlds × 4 stages** (3 stages + a traversal-tested **Guardian** boss each)
 - **Progressive powers**: Cyclone Spin → Double Jump → Super Belly Slam → Seed Shot → Slide → Tongue Grapple → Super Spin → Time Dash — each unlocked by a guardian ceremony, each re-opening older stages
-- **Time powers**: SLOW (hold T) · FREEZE (F) · PHASE SHIFT (G) — the world clock bends, the frog stays sharp
+- **Time powers**: SLOW (hold T) · FREEZE (F) · PHASE SHIFT (G) · REVERSE (B — rebuild fallen ruins, lift sinking pads) · ACCELERATE (N — grow seeds into bounce mushrooms)
 - **Hop Flow → FLOW STATE**: rhythm-chained landings turn the level into an instrument (generative percussion, blooms, score ×2)
 - **Chronopods** (13 variants), Time Pollen, Fractal Shards, Secret Glyphs, Perfect/No-Death/Seeker/Pollen Blooms
 - **TIME RUN** speedrun mode: stopwatch, time pods, tiered Epoch relics, and your **translucent time-ghost** with ribbon trail
@@ -85,7 +85,7 @@ MANDELHOP is now a full **psychedelic 3D platforming campaign** in the spirit of
 - The original **endless descent** survives as THE INFINITE BETWEEN (hub gate, left side)
 
 ### Controls
-`←↑↓→ / WASD` hop · `J` spin · `K` slam · `L/Shift` slide · `I` seed shot · `U` grapple · `H` time dash · `T` hold = slow · `F` freeze · `G` phase · `R` retry · `Q` hub · `C` camera · `P` pause · `M` mute
+`←↑↓→ / WASD` hop · `J` spin · `K` slam · `L/Shift` slide · `I` seed shot · `U` grapple · `H` time dash · `T` hold = slow · `F` freeze · `G` phase · `B` reverse ruins · `N` accelerate growth · `R` retry · `Q` hub · `C` camera · `P` pause · `M` mute
 
 Accessibility: FLASH/MOTION toggle on the title screen. Gamepad: dpad/stick hop · A confirm · X spin · B slam · Y seed · LB slide · RB dash · LT slow · RT freeze.
 
