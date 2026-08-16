@@ -65,10 +65,10 @@ export function buildVehicle(style, len, theme, rng) {
     seam.position.y = 0.55;
     g.add(shell, head, seam);
   } else if (style === 'caterpillar') {
-    const n = Math.max(2, Math.round(len * 1.6));
+    const n = Math.max(3, Math.round(len * 2.2));
     for (let i = 0; i < n; i++) {
-      const seg = new THREE.Mesh(new THREE.SphereGeometry(0.3, 12, 10),
-        physMat(hsl(theme.flowerHue + i * 0.04, 0.85, 0.55)));
+      const seg = new THREE.Mesh(new THREE.SphereGeometry(0.38, 14, 10),
+        physMat(hsl(theme.flowerHue + i * 0.035, 0.85, 0.55)));
       seg.position.set(-len / 2 + (i + 0.5) * (len / n), 0.32, 0);
       seg.userData.segIdx = i;
       g.add(seg);

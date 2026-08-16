@@ -39,7 +39,7 @@ export class World {
     this.scene = scene;
 
     // lighting
-    this.hemi = new THREE.HemisphereLight(0x8a6cff, 0x1a3d24, 0.55);
+    this.hemi = new THREE.HemisphereLight(0x8a6cff, 0x1a3d24, 0.72);
     this.sun = new THREE.DirectionalLight(0xfff1dc, 1.35);
     this.sun.position.set(5, 10, 4);
     this.glow1 = new THREE.PointLight(0xff7ecb, 12, 14, 1.8);
