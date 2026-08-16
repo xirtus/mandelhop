@@ -100,6 +100,7 @@ export class Game {
     this.ceremonyActive = false;
     this._spores = [];            // spitter projectiles
     this._bonusUsedRows = new Set();
+    this.swim = 0;                // >0: in the water, value = air seconds left
   }
 
   // ------------------------------------------------------------- themes
@@ -383,6 +384,7 @@ export class Game {
 
     const row = {
       r, type, ents: [], vis: null,
+      pool: false,   // swimmable water
       dir: rng.sign(), speed: 0, len: 0, gap: 0, kind: 'log',
       offset: 0, wrap: false, mirror: false, pulse: false,
       cA: rng.range(-0.8, -0.6), cB: rng.range(0.05, 0.2),
@@ -401,6 +403,7 @@ export class Game {
 
     if (type === 'road' || type === 'river') {
       const isRoad = type === 'road';
+      const isPool = !isRoad && this.mode === 'stage' && this.stage?.gimmick === 'swim' && rng.chance(0.55);
       row.dir = rng.sign();
       row.speed = (isRoad ? rng.range(1.3, 2.4) : rng.range(0.9, 1.9)) * D * (r <= 2 ? 0.6 : 1);
       // early-game easing: the first rows of World 1 never twitch
@@ -410,6 +413,8 @@ export class Game {
         ? (w1ease ? rng.pick([2, 2, 3]) : rng.pick([1, 1, 2, 2, 3]))
         : Math.max(2, rng.pick([2, 3, 3, 4]) - (this.mode === 'endless' && r > 200 ? 1 : 0));
       row.kind = isRoad ? 'vehicle' : (rng.chance(0.4) ? 'lily' : 'log');
+      row.pool = isPool;
+      if (isPool && rng.chance(0.5)) row.gap *= 1.8;   // open water stretches
       row.sinker = !isRoad && row.kind === 'lily' && (flags.sinker || 0) > 0 && rng.chance(flags.sinker);
       row.gap = (isRoad ? rng.range(2.6, 4.2) : rng.range(2.8, 4.4)) * G * (w1ease ? 1.15 : 1);
       if ((flags.wrap || 0) && rng.chance(flags.wrap)) row.wrap = true;
@@ -883,6 +888,7 @@ export class Game {
     // FLOW: rhythm landing
     this.flow.setFrog(this.fx, z);
     this.flow.onLand(this.worldT, this.audio.beatPhase(), !!this._hoppedFwd);
+    if (row && row.type !== 'river') this._exitWater();
 
     if (this._hoppedFwd && this.row > this.maxRow) {
       this.maxRow = this.row;
@@ -903,8 +909,13 @@ export class Game {
       if (row.phaseFrozen) { this.frog.group.position.y = 0.05; }
       else {
         const ride = this._platformUnder(row);
-        if (!ride) { this._die('water'); return; }
-        this.frog.group.position.y = this._platformTop(row, ride);
+        if (!ride) {
+          if (row.pool) { this._enterWater(row); }
+          else { this._die('water'); return; }
+        } else {
+          this._exitWater();
+          this.frog.group.position.y = this._platformTop(row, ride);
+        }
       }
     } else {
       // ground pods: landing on one bounces/breaks
@@ -1101,6 +1112,18 @@ export class Game {
         }
       }
     }
+  }
+
+  // ---- swimming ---------------------------------------------------------------
+  _enterWater(row) {
+    this.swim = 4.0;
+    this.audio.splashIn?.() || this.audio.death && null;
+    this.water.addRipple(this.fx, rowToZ(this.row), 1.2);
+    this.effects.splash(this.fx, rowToZ(this.row), this.scratch.waterGlint.getHex());
+    this.ui.showAir?.(true);
+  }
+  _exitWater() {
+    if (this.swim > 0) { this.swim = 0; this.ui.showAir?.(false); }
   }
 
   // ---- object-level time powers ----------------------------------------------
@@ -1600,8 +1623,20 @@ export class Game {
           }
           if (row.type === 'river' && !row.phaseFrozen) {
             const ride = this._platformUnder(row);
-            if (!ride) { this._die('water'); }
+            if (!ride) {
+              if (row.pool) {
+                if (this.swim <= 0) this._enterWater(row);
+                // paddle: drift with the current, no platform needed
+                const mul = row.pulse ? row.pulseMul : 1;
+                this.fx += row.dir * row.speed * 0.35 * mul * wdt;
+                this.frog.group.position.x = this.fx;
+                this.frog.group.position.y = -0.12 + Math.sin(this.worldT * 2.2) * 0.05;
+                if (!row.wrap && Math.abs(this.fx) > HALF + 0.9) { this._die('water'); }
+              }
+              else { this._die('water'); }
+            }
             else {
+              this._exitWater();
               const mul = row.pulse ? row.pulseMul : 1;
               this.fx += row.dir * row.speed * mul * wdt;
               this.frog.group.position.x = this.fx;
@@ -1650,6 +1685,17 @@ export class Game {
               if (c.state === 'fallen' && Math.abs(this.fx - c.x) < 0.5) { this._die('squash'); }
             }
           }
+        }
+      }
+      // swim air meter
+      if (this.state === 'play' && this.swim > 0) {
+        const row = this.rows.get(this.row);
+        if (row && row.type === 'river' && row.pool && !this._platformUnder(row)) {
+          this.swim -= wdt;
+          this.ui.setAir?.(this.swim / 4);
+          if (this.swim <= 0) { this.ui.showAir?.(false); this._die('water'); }
+        } else {
+          this._exitWater();
         }
       }
       // energy (endless only)
@@ -1825,6 +1871,9 @@ export class Game {
     if (!this.frog.isHopping && !this.frog.dying) {
       this.frog.group.position.z = frogZ;
       const row = this.rows.get(this.row);
+      if (row && row.type === 'river' && row.pool && this.swim > 0 && !this._platformUnder(row)) {
+        this.frog.group.position.y = -0.12 + Math.sin(this.worldT * 2.2) * 0.05;
+      }
       if (!row || (row.type !== 'river' || row.phaseFrozen)) {
         this.frog.group.position.x = this.fx;
         if (!row || row.type !== 'river') this.frog.group.position.y = row && row.phaseFrozen ? 0.05 : 0;

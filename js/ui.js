@@ -132,6 +132,24 @@ export class UI {
     this.$('flow-hud').classList.toggle('flowstate', state);
   }
 
+  showAir(on) {
+    let el = this.$('airbar');
+    if (!el) {
+      el = document.createElement('div');
+      el.id = 'airbar';
+      el.innerHTML = '<div id="airfill"></div>';
+      this.$('hud').appendChild(el);
+    }
+    el.style.display = on ? 'block' : 'none';
+  }
+  setAir(f) {
+    const el = this.$('airfill');
+    if (el) {
+      el.style.transform = `scaleX(${Math.max(0, Math.min(1, f))})`;
+      el.style.background = f < 0.3 ? '#ff4d6d' : '';
+    }
+  }
+
   showStopwatch(on) {
     this.$('stopwatch').style.display = on ? 'block' : 'none';
   }

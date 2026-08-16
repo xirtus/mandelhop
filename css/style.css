@@ -276,3 +276,15 @@ body {
   backdrop-filter: blur(6px);
 }
 .complete-panel .big { font-size: 38px; }
+
+/* swim air meter */
+#airbar {
+  position: fixed; bottom: 120px; left: 50%; transform: translateX(-50%);
+  width: 140px; height: 10px; background: rgba(10, 30, 50, 0.7);
+  border: 1px solid rgba(102, 242, 255, 0.5); border-radius: 6px; overflow: hidden;
+  display: none; z-index: 15;
+}
+#airfill {
+  position: absolute; inset: 0; transform-origin: left;
+  background: linear-gradient(90deg, #1fb6a6, #66f2ff);
+}
