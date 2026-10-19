@@ -1,6 +1,8 @@
 # MANDELHOP 🐸 — THE INFINITE DESCENT
 *one endless frogger journey into a recursive psychedelic garden*
 
+![MANDELHOP hub](docs/screenshot.jpg)
+
 No stages. No arcade loop. One continuous procedurally-generated track that
 keeps unfolding deeper into the Mandelbrot dream — and keeps finding new
 ways to kill you.
